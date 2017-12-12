@@ -45,8 +45,9 @@ def main(debug):
 @click.option('--directory_fit', '-d', required=True,
               type=click.Path(exists=True, file_okay=False),
               help='Path of your .fit files on your watch mount path')
-@click.option('--move/--no_move', '-m', default=False,
-              help='Move files upon upload')
+@click.option('--move', '-m', required=False,
+              type=click.Path(exists=True, file_okay=False, dir_okay=True, writable=True, readable=True),
+              help='Directory to move .fit files to upon upload')
 @click.option('--username', '-u', required=True,
               default=lambda: os.environ.get('GARMINCONNECT_USERNAME', ''),
               help='The GARMINCONNECT_USERNAME environment variable should you have one set')  # noqa
@@ -151,9 +152,9 @@ def upload(directory_fit, move, username, password, conf_dir_fit):
                         successes['internalId'])
                     logger.info(m_success)
 
-            if move:
+            if os.path.isdir(move):
                 shutil.move(os.path.join(directory_fit, filename),
-                            os.path.join(conf_dir_fit, filename))
+                            os.path.join(move, filename))
 
         logger.info('Done uploading')
     else:
